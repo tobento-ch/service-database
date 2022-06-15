@@ -384,6 +384,33 @@ $database->transaction(function(PdoDatabaseInterface $db): void {
 });
 ```
 
+**commit**
+
+```php
+$database->begin();
+
+// your queries
+
+$database->commit();
+```
+
+**rollback**
+
+```php
+$database->begin();
+
+// your queries
+
+$database->rollback();
+```
+
+**supportsNestedTransactions**
+
+```php
+var_dump($database->supportsNestedTransactions());
+// bool(true)
+```
+
 **PDO**
 
 ```php

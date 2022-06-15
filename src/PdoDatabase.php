@@ -23,6 +23,16 @@ use Throwable;
 class PdoDatabase implements DatabaseInterface, PdoDatabaseInterface
 {
     /**
+     * @var int
+     */
+    protected int $transactionLevel = 0;
+    
+    /**
+     * @var array Database drivers that support savepoints.
+     */
+    protected array $supportsSavepoints = ['pgsql', 'mysql'];    
+    
+    /**
      * Create a new PdoDatabase.
      *
      * @param PDO $pdo
@@ -54,6 +64,74 @@ class PdoDatabase implements DatabaseInterface, PdoDatabaseInterface
     }
     
     /**
+     * Begin a transaction.
+     *
+     * @return bool Returns true on success or false on failure.
+     */
+    public function begin(): bool
+    {
+        if($this->transactionLevel === 0 || !$this->supportsNestedTransactions()) {
+            $this->transactionLevel++;
+            return $this->pdo()->beginTransaction();
+        }
+        
+        $this->pdo()->exec("SAVEPOINT LEVEL{$this->transactionLevel}");
+        
+        $this->transactionLevel++;
+        
+        return true;
+    }
+    
+    /**
+     * Commit a transaction.
+     *
+     * @return bool Returns true on success or false on failure.
+     */
+    public function commit(): bool
+    {
+        $this->transactionLevel--;
+        
+        if($this->transactionLevel === 0 || !$this->supportsNestedTransactions()) {
+            return $this->pdo()->commit();
+        }
+
+        $this->pdo()->exec("RELEASE SAVEPOINT LEVEL{$this->transactionLevel}");
+
+        return true;
+    }
+
+    /**
+     * Rollback a transaction.
+     *
+     * @return bool Returns true on success or false on failure.
+     */
+    public function rollback(): bool
+    {
+        $this->transactionLevel--;
+
+        if($this->transactionLevel === 0 || !$this->supportsNestedTransactions()) {
+            return $this->pdo()->rollBack();
+        }
+        
+        $this->pdo()->exec("ROLLBACK TO SAVEPOINT LEVEL{$this->transactionLevel}");
+        
+        return true;
+    }
+    
+    /**
+     * Returns true if supporting nested transactions, otherwise false.
+     *
+     * @return bool
+     */
+    public function supportsNestedTransactions(): bool
+    {
+        return in_array(
+            $this->pdo()->getAttribute(PDO::ATTR_DRIVER_NAME),
+            $this->supportsSavepoints
+        );
+    }
+    
+    /**
      * Execute a transaction.
      *
      * @param callable $callback
@@ -61,21 +139,18 @@ class PdoDatabase implements DatabaseInterface, PdoDatabaseInterface
      * @throws Throwable
      */
     public function transaction(callable $callback): void
-    {        
-        try {            
-            $this->pdo()->beginTransaction();
-            
-            call_user_func_array($callback, [$this]);
-            
+    {
+        $this->begin();
+        
+        try {
+            $callback($this);
             if ($this->pdo()->inTransaction()) {
-                $this->pdo()->commit();
+                $this->commit();
             }
         } catch (Throwable $e) {
-            
-            if ($this->pdo()->inTransaction()){
-                $this->pdo()->rollBack();
+            if ($this->pdo()->inTransaction()) {
+                $this->rollback();
             }
-            
             throw $e;
         }
     }    

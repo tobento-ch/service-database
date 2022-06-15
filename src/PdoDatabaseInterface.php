@@ -15,6 +15,7 @@ namespace Tobento\Service\Database;
 
 use PDOStatement;
 use PDO;
+use Throwable;
 
 interface PdoDatabaseInterface
 {
@@ -26,7 +27,44 @@ interface PdoDatabaseInterface
      * @return PDOStatement
      */    
     public function execute(string $statement, array $bindings = []): PDOStatement;
-        
+
+    /**
+     * Begin a transaction.
+     *
+     * @return bool Returns true on success or false on failure.
+     */
+    public function begin(): bool;
+    
+    /**
+     * Commit a transaction.
+     *
+     * @return bool Returns true on success or false on failure.
+     */
+    public function commit(): bool;
+
+    /**
+     * Rollback a transaction.
+     *
+     * @return bool Returns true on success or false on failure.
+     */
+    public function rollback(): bool;
+    
+    /**
+     * Returns true if supporting nested transactions, otherwise false.
+     *
+     * @return bool
+     */
+    public function supportsNestedTransactions(): bool;
+    
+    /**
+     * Execute a transaction.
+     *
+     * @param callable $callback
+     * @return void
+     * @throws Throwable
+     */
+    public function transaction(callable $callback): void;
+    
     /**
      * Get the pdo
      *
