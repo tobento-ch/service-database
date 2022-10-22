@@ -37,8 +37,22 @@ class DecimalColumn extends Column implements
         int $precision = 10,
         int $scale = 0,
     ) {
-        $this->length = (string)$precision.','.(string)$scale;
+        $this->precision($precision, $scale);
     }
+        
+    /**
+     * Set the column precision.
+     *
+     * @param int $precision
+     * @param int $scale
+     * @return static $this
+     */    
+    public function precision(int $precision, int $scale = 0): static
+    {
+        $this->length = (string)$precision.','.(string)$scale;
+        
+        return $this;
+    }        
     
     /**
      * Returns the column type.
