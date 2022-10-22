@@ -28,6 +28,9 @@ With the Database Service you can create and manage databases easily.
                 - [Items](#items)
                 - [Item Factory](#item-factory)
                 - [Json File Items](#json-file-items)
+            - [Table Factory](#table-factory)
+            - [Column Factory](#column-factory)
+            - [Index Factory](#index-factory)
         - [Processors](#processors)
             - [Pdo MySql Processor](#pdo-mysql-processor)
             - [Stack Processor](#stack-processor)
@@ -687,6 +690,176 @@ If set to **true**, it uses transaction while proccessing if the database suppor
 **forceInsert**
 
 If set to **true**, it will always inserts the items, otherwise they will only be inserted if there there are not items yet.
+
+### Table Factory
+
+You may use the table factory to create a table.
+
+```php
+use Tobento\Service\Database\Schema\TableFactoryInterface;
+use Tobento\Service\Database\Schema\TableFactory;
+use Tobento\Service\Database\Schema\Table;
+
+$tableFactory = new TableFactory();
+
+var_dump($tableFactory instanceof TableFactoryInterface);
+// bool(true)
+
+$table = $tableFactory->createTable(name: 'users');
+
+var_dump($table instanceof Table);
+// bool(true)
+```
+
+### Column Factory
+
+You may use the column factory to create a column.
+
+```php
+use Tobento\Service\Database\Schema\ColumnFactoryInterface;
+use Tobento\Service\Database\Schema\ColumnFactory;
+
+$columnFactory = new ColumnFactory();
+
+var_dump($columnFactory instanceof ColumnFactoryInterface);
+// bool(true)
+```
+
+**createColumn**
+
+```php
+use Tobento\Service\Database\Schema\ColumnFactory;
+use Tobento\Service\Database\Schema\ColumnInterface;
+use Tobento\Service\Database\Schema\CreateColumnException;
+
+try {
+    $column = (new ColumnFactory())->createColumn(type: 'int', name: 'foo');
+    
+    var_dump($column instanceof ColumnInterface);
+    // bool(true)
+    
+} catch(CreateColumnException $e) {
+    //
+}
+```
+
+Check out the supported [Column Types](#column-types) for its type name.
+
+**createColumnFromArray**
+
+```php
+use Tobento\Service\Database\Schema\ColumnFactory;
+use Tobento\Service\Database\Schema\ColumnInterface;
+use Tobento\Service\Database\Schema\CreateColumnException;
+
+try {
+    $column = (new ColumnFactory())->createColumnFromArray([
+        'type' => 'int',
+        'name' => 'foo',
+    ]);
+    
+    var_dump($column instanceof ColumnInterface);
+    // bool(true)
+    
+} catch(CreateColumnException $e) {
+    //
+}
+```
+
+Lengthable, Nullable, Defaultable, Unsignable and Parameters column definitions:
+
+```php
+use Tobento\Service\Database\Schema\ColumnFactory;
+
+$column = (new ColumnFactory())->createColumnFromArray([
+    'type' => 'int',
+    'name' => 'foo',
+    
+    'length' => 99,
+    'nullable' => false,
+    'default' => 'value',
+    'unsigned' => true,
+    
+    'parameters' => [
+        'charset' => 'utf8mb4',
+        'collation' => 'utf8mb4_roman_ci',
+    ],
+    
+    // Decimal column
+    'precision' => 8,
+    'scale' => 4,
+]);
+```
+
+### Index Factory
+
+```php
+use Tobento\Service\Database\Schema\IndexFactoryInterface;
+use Tobento\Service\Database\Schema\IndexFactory;
+
+$indexFactory = new IndexFactory();
+
+var_dump($indexFactory instanceof IndexFactoryInterface);
+// bool(true)
+```
+
+**createIndex**
+
+```php
+use Tobento\Service\Database\Schema\IndexFactory;
+use Tobento\Service\Database\Schema\IndexInterface;
+use Tobento\Service\Database\Schema\CreateIndexException;
+
+try {
+    $index = (new IndexFactory())->createIndex(name: 'foo');
+    
+    var_dump($index instanceof IndexInterface);
+    // bool(true)
+    
+} catch(CreateIndexException $e) {
+    //
+}
+```
+
+**createIndexFromArray**
+
+```php
+use Tobento\Service\Database\Schema\IndexFactory;
+use Tobento\Service\Database\Schema\IndexInterface;
+use Tobento\Service\Database\Schema\CreateIndexException;
+
+try {
+    $index = (new IndexFactory())->createIndexFromArray([
+        'name' => 'foo',
+    ]);
+    
+    var_dump($index instanceof IndexInterface);
+    // bool(true)
+    
+} catch(CreateIndexException $e) {
+    //
+}
+```
+
+Other parameter definitions:
+
+```php
+use Tobento\Service\Database\Schema\IndexFactory;
+
+$index = (new IndexFactory())->createIndexFromArray([
+    'name' => 'foo',
+    
+    'column' => 'name',
+    // or multiple
+    'column' => ['name', 'another_name'],
+    
+    'unique' => true,
+    'primary' => true,
+    
+    'rename' => 'newname',
+    'drop' => true,
+]);
+```
 
 
 ### Processors
