@@ -17,7 +17,15 @@ namespace Tobento\Service\Database\Schema;
  * Lengthable
  */
 interface Lengthable
-{    
+{
+    /**
+     * Set the column length.
+     *
+     * @param int|string $length
+     * @return static $this
+     */    
+    public function length(int|string $length): static;
+    
     /**
      * Returns the column length.
      *
