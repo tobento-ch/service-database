@@ -18,6 +18,7 @@ use Tobento\Service\Database\Schema\Table;
 use Tobento\Service\Database\Schema\StringColumn;
 use Tobento\Service\Database\Schema\Index;
 use Tobento\Service\Database\Schema\Items;
+use Tobento\Service\Database\Schema\ItemsInterface;
 
 /**
  * TableTest tests
@@ -132,35 +133,18 @@ class TableTest extends TestCase
     {
         $table = new Table('users');
         
-        $items = new Items([
-            ['name' => 'Foo', 'active' => true],
-            ['name' => 'Bar', 'active' => true],
-        ]);
-            
-        $this->assertSame(
-            $items,
-            $table->items($items)
-        );        
-    }
-    
-    public function testGetItemsMethod()
-    {
-        $table = new Table('users');
-        
         $this->assertSame(
             null,
             $table->getItems()
         );
 
-        $items = new Items([
+        $table->items([
             ['name' => 'Foo', 'active' => true],
             ['name' => 'Bar', 'active' => true],
         ]);
         
-        $table->items($items);
-                
-        $this->assertSame(
-            $items,
+        $this->assertInstanceOf(
+            ItemsInterface::class,
             $table->getItems()
         );        
     }

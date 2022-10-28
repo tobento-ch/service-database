@@ -172,12 +172,12 @@ class Table
     /**
      * Adds table items.
      *
-     * @param null|ItemsInterface $items
+     * @param null|iterable $items
      * @return ItemsInterface
      */    
-    public function items(null|ItemsInterface $items): null|ItemsInterface
+    public function items(null|iterable $items): null|ItemsInterface
     {
-        return $this->items = $items;
+        return $this->items = new Items(iterable: $items);
     }
  
     /**

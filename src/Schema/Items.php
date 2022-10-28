@@ -13,13 +13,20 @@ declare(strict_types=1);
 
 namespace Tobento\Service\Database\Schema;
 
-use ArrayIterator;
+use Tobento\Service\Iterable\Iter;
+use Iterator;
+use Traversable;
 
 /**
  * Items
  */
-class Items extends ArrayIterator implements ItemsInterface
+class Items implements ItemsInterface
 {
+    /**
+     * @var Iterator
+     */
+    protected Iterator $iterator;
+    
     /**
      * @var int
      */
@@ -34,6 +41,17 @@ class Items extends ArrayIterator implements ItemsInterface
      * @var bool
      */
     protected bool $forceInsert = false;
+    
+    /**
+     * Create a new Items.
+     *
+     * @param iterable $iterable
+     */
+    public function __construct(
+        iterable $iterable
+    ) {
+        $this->iterator = Iter::toIterator(iterable: $iterable);
+    }
     
     /**
      * Set the chunk length.
@@ -99,5 +117,15 @@ class Items extends ArrayIterator implements ItemsInterface
     public function forcingInsert(): bool
     {
         return $this->forceInsert;
+    }
+    
+    /**
+     * Returns the iterator.
+     *
+     * @return Traversable
+     */
+    public function getIterator(): Traversable
+    {
+        return $this->iterator;
     }    
 }

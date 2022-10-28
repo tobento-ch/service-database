@@ -13,13 +13,37 @@ declare(strict_types=1);
 
 namespace Tobento\Service\Database\Schema;
 
-use Iterator;
+use IteratorAggregate;
 
 /**
  * ItemsInterface
  */
-interface ItemsInterface extends Iterator
+interface ItemsInterface extends IteratorAggregate
 {
+    /**
+     * Set the chunk length.
+     *
+     * @param int $length
+     * @return static $this
+     */    
+    public function chunk(int $length): static;
+    
+    /**
+     * Set if to use transaction.
+     *
+     * @param bool $use
+     * @return static $this
+     */
+    public function useTransaction(bool $use): static;
+    
+    /**
+     * Set if to use force insert.
+     *
+     * @param bool $forceInsert
+     * @return static $this
+     */
+    public function forceInsert(bool $forceInsert): static;
+    
     /**
      * Returns the chunk length.
      *

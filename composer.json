@@ -23,7 +23,8 @@
     "prefer-stable": true,
     "require": {
         "php": ">=8.0",
-        "tobento/service-filesystem": "^1.0"
+        "tobento/service-filesystem": "^1.0",
+        "tobento/service-iterable": "^1.0"
     },
     "suggest": {
         "tobento/service-migration": "For Database Migration.",

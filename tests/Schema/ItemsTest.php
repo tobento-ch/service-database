@@ -24,14 +24,14 @@ class ItemsTest extends TestCase
 {    
     public function testImplementsItemsInterface()
     {
-        $items = new Items();
+        $items = new Items([]);
         
         $this->assertInstanceOf(ItemsInterface::class, $items);
     }
     
     public function testChunkMethods()
     {
-        $items = new Items();
+        $items = new Items([]);
         
         $this->assertSame(10, $items->getChunkLength());
         
@@ -41,7 +41,7 @@ class ItemsTest extends TestCase
     
     public function testTransactionMethods()
     {
-        $items = new Items();
+        $items = new Items([]);
         
         $this->assertTrue($items->withTransaction());
         
@@ -54,7 +54,7 @@ class ItemsTest extends TestCase
     
     public function testForceInsertMethods()
     {
-        $items = new Items();
+        $items = new Items([]);
         
         $this->assertFalse($items->forcingInsert());
         

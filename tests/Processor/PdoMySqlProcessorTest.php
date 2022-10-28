@@ -21,7 +21,9 @@ use Tobento\Service\Database\Processor\ProcessException;
 use Tobento\Service\Database\PdoDatabase;
 use Tobento\Service\Database\PdoDatabaseInterface;
 use Tobento\Service\Database\Schema\Table;
-use Tobento\Service\Database\Schema\Items;
+use Tobento\Service\Iterable\ItemFactoryIterator;
+use Tobento\Service\Iterable\JsonFileIterator;
+use Tobento\Service\Iterable\ModifyIterator;
 use PDO;
 
 /**
@@ -216,10 +218,10 @@ class PdoMySqlProcessorTest extends TestCase
         $table->string('name');
         $table->bool('active');
 
-        $table->items(new Items([
+        $table->items([
             ['name' => 'foo', 'active' => true],
             ['name' => 'bar', 'active' => true],
-        ]))
+        ])
         ->chunk(length: 100)
         ->useTransaction(true) // default is true
         ->forceInsert(false); // default is false
@@ -239,6 +241,92 @@ class PdoMySqlProcessorTest extends TestCase
         
         $this->dropTable($tableName);
     }
+    
+    public function testProcessWithItemFactory()
+    {
+        $tableName = 'products';
+        
+        $this->dropTable($tableName);
+        
+        $table = new Table(name: $tableName);
+        $table->primary('id');
+        $table->string('name');
+        $table->bool('active');
+
+        $table->items(new ItemFactoryIterator(
+            factory: function(): array {
+                return [
+                    'name' => 'pen',
+                    'active' => true,
+                ];
+            },
+            create: 2
+        ))
+        ->chunk(length: 100)
+        ->useTransaction(true) // default is true
+        ->forceInsert(false); // default is false
+        
+        $processor = new PdoMySqlProcessor();
+        
+        $processor->process($table, $this->database);
+        
+        $storage = new PdoMySqlStorage();
+        
+        $savedTable = $storage->fetchTable($this->database, $tableName);
+        
+        $this->assertSame(3, count($savedTable->getColumns()));
+        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(null, $savedTable->getItems());
+        $this->assertSame(2, $savedTable->getItemsCount());   
+        
+        $this->dropTable($tableName);
+    }
+    
+    public function testProcessWithJsonFileItemsAndModifyIterator()
+    {
+        $tableName = 'products';
+        
+        $this->dropTable($tableName);
+        
+        $table = new Table(name: $tableName);
+        $table->primary('id');
+        $table->string('iso');
+        $table->string('name');
+
+        $iterator = new JsonFileIterator(
+            file: __DIR__.'/../src/countries.json',
+        );
+        
+        $iterator = new ModifyIterator(
+            iterable: $iterator,
+            modifier: function(array $item): array {
+                return [
+                  'iso' => $item['iso'] ?? '',
+                  'name' => $item['country'] ?? '',
+                ];
+            }
+        );
+        
+        $table->items($iterator)
+        ->chunk(length: 100)
+        ->useTransaction(true) // default is true
+        ->forceInsert(false); // default is false
+        
+        $processor = new PdoMySqlProcessor();
+        
+        $processor->process($table, $this->database);
+        
+        $storage = new PdoMySqlStorage();
+        
+        $savedTable = $storage->fetchTable($this->database, $tableName);
+        
+        $this->assertSame(3, count($savedTable->getColumns()));
+        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(null, $savedTable->getItems());
+        $this->assertSame(3, $savedTable->getItemsCount());   
+        
+        $this->dropTable($tableName);
+    }    
 
     public function testProcessWithItemsThrowsProcessExceptionIfColumnDoesNotExist()
     {        
@@ -251,10 +339,10 @@ class PdoMySqlProcessorTest extends TestCase
         $table->string('foo');
         $table->bool('active');
 
-        $table->items(new Items([
+        $table->items([
             ['name' => 'foo', 'active' => true],
             ['name' => 'bar', 'active' => true],
-        ]))
+        ])
         ->chunk(length: 100)
         ->useTransaction(true) // default is true
         ->forceInsert(false); // default is false

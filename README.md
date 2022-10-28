@@ -601,16 +601,19 @@ No supported yet!
 ##### Items
 
 ```php
-use Tobento\Service\Database\Schema\Items;
+use Tobento\Service\Database\Schema\ItemsInterface;
 
-$table->items(new Items([
+$items = $table->items(iterable: [
     ['name' => 'Foo', 'active' => true],
     ['name' => 'Bar', 'active' => true],
     // ...
-]))
+])
 ->chunk(length: 100)
 ->useTransaction(false) // default is true
 ->forceInsert(true); // default is false
+
+var_dump($items instanceof ItemsInterface);
+// bool(true)
 ```
 
 **chunk**
@@ -627,69 +630,53 @@ If set to **true**, it will always inserts the items, otherwise they will only b
 
 ##### Item Factory
 
-You may use the item factory to seed items and use the [Seeder Service](https://github.com/tobento-ch/service-seeder) to generate fake data.
+You may use the item factory iterator to seed items and use the [Seeder Service](https://github.com/tobento-ch/service-seeder) to generate fake data.
 
 ```php
-use Tobento\Service\Database\Schema\ItemFactory;
+use Tobento\Service\Iterable\ItemFactoryIterator;
 use Tobento\Service\Seeder\Str;
 use Tobento\Service\Seeder\Arr;
 
-$table->items(new ItemFactory(function() {
-    return [
-        'name' => Str::string(10),
-        'color' => Arr::item(['green', 'red', 'blue']),
-    ];
-}))
-->create(number: 1000000) // create 1 million items
+$table->items(new ItemFactoryIterator(
+    factory: function(): array {
+        return [
+            'name' => Str::string(10),
+            'color' => Arr::item(['green', 'red', 'blue']),
+        ];
+    },
+    create: 1000000 // create 1 million items
+))
 ->chunk(length: 10000)
 ->useTransaction(false) // default is true
 ->forceInsert(true); // default is false
 ```
 
-**create**
-
-Define the number of items you want to create.
-
-**chunk**
-
-You may play around with the chunk **length** parameter for speed improvements while having many items.
-
-**useTransaction**
-
-If set to **true**, it uses transaction while proccessing if the database supports it.
-
-**forceInsert**
-
-If set to **true**, it will always inserts the items, otherwise they will only be inserted if there there are not items yet.
-
 ##### Json File Items
 
 ```php
-use Tobento\Service\Database\Schema\JsonFileItems;
+use Tobento\Service\Iterable\JsonFileIterator;
+use Tobento\Service\Iterable\ModifyIterator;
 
-$table->items(new JsonFileItems(file: 'private/src/countries.json'))
-      ->map(function($item) {
-          return [
-              'iso' => $item['iso'] ?? '',
-              'name' => $item['country'] ?? '',
-          ];
-      })
+$iterator = new JsonFileIterator(
+    file: 'private/src/countries.json',
+);
+
+// you may use the modify iterator:
+$iterator = new ModifyIterator(
+    iterable: $iterator,
+    modifier: function(array $item): array {
+        return [
+          'iso' => $item['iso'] ?? '',
+          'name' => $item['country'] ?? '',
+        ];
+    }
+);
+        
+$table->items($iterator)
       ->chunk(length: 100)
       ->useTransaction(true) // default is true
       ->forceInsert(false); // default is false
 ```
-
-**chunk**
-
-You may play around with the chunk **length** parameter for speed improvements while having many items.
-
-**useTransaction**
-
-If set to **true**, it uses transaction while proccessing if the database supports it.
-
-**forceInsert**
-
-If set to **true**, it will always inserts the items, otherwise they will only be inserted if there there are not items yet.
 
 ### Table Factory
 

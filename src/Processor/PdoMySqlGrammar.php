@@ -22,6 +22,7 @@ use Tobento\Service\Database\Schema\Defaultable;
 use Tobento\Service\Database\Schema\Unsignable;
 use Tobento\Service\Database\Schema\RenameColumn;
 use Tobento\Service\Database\Schema\DropColumn;
+use Tobento\Service\Iterable\ChunkIterator;
 
 /**
  * PdoMySqlGrammar
