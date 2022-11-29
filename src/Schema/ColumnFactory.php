@@ -113,6 +113,10 @@ class ColumnFactory implements ColumnFactoryInterface
             array_key_exists('default', $column)
             && $col instanceof Defaultable
         ) {
+            if (is_array($column['default'])) {
+                $column['default'] = json_encode($column['default']);
+            }
+            
             $col->default($column['default']);
         }
         
