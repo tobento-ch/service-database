@@ -69,4 +69,17 @@ class DatabaseAction implements ActionInterface
     {
         return $this->description;
     }
+    
+    /**
+     * Returns the processed data information.
+     *
+     * @return array<array-key, string>
+     */
+    public function processedDataInfo(): array
+    {
+        return [
+            'database' => $this->database->name(),
+            'table' => $this->table->getName(),
+        ];
+    }
 }
