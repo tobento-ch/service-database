@@ -1077,6 +1077,7 @@ $action = new DatabaseAction(
     processor: $processor, // ProcessorInterface
     database: $database, // DatabaseInterface
     table: $table, // Table
+    name: 'A unique name', // or null
     description: 'Database table migrated'
 );
 
