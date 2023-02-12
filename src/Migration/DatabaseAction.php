@@ -31,12 +31,14 @@ class DatabaseAction implements ActionInterface
      * @param ProcessorInterface $processor
      * @param DatabaseInterface $database
      * @param Table $table
+     * @param null|string $name A name of the action.
      * @param string $description A description of the action.
      */    
     public function __construct(
         protected ProcessorInterface $processor,
         protected DatabaseInterface $database,
         protected Table $table,
+        protected null|string $name = null,
         protected string $description = '',
     ) {}
     
@@ -58,6 +60,16 @@ class DatabaseAction implements ActionInterface
                 $e
             );
         }
+    }
+    
+    /**
+     * Returns a name of the action.
+     *
+     * @return string
+     */
+    public function name(): string
+    {
+        return $this->name ?: $this::class;
     }
  
     /**
