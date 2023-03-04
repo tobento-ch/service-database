@@ -33,7 +33,8 @@
     "require-dev": {
         "phpunit/phpunit": "^9.5",
         "vimeo/psalm": "^4.0",
-        "tobento/service-migration": "^1.0.5"
+        "tobento/service-migration": "^1.0.5",
+        "tobento/service-seeder": "^1.0"
     },    
     "autoload": {
         "psr-4": {
