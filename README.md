@@ -40,6 +40,8 @@ With the Database Service you can create and manage databases easily.
             - [Custom Storage](#custom-storage)
         - [Security](#security)
         - [Migrator](#migrator)
+            - [Create Migration](#create-migration)
+            - [Install And Uninstall Migration](#install-and-uninstall-migration)
 - [Credits](#credits)
 ___
 
@@ -1066,24 +1068,137 @@ try {
 
 You might install and use the [Migration Service](https://github.com/tobento-ch/service-migration) for migration processing.
 
+#### Create Migration
+
+Create a migration class by extending the ```DatabaseMigration::class```.
+
+**Using the ```registerTables``` method**
+
+You may use the ```registerTables``` method to register the table for the install and uninstall process.
+
 ```php
-use Tobento\Service\Database\Migration\DatabaseAction;
-use Tobento\Service\Database\Processor\ProcessorInterface;
-use Tobento\Service\Database\DatabaseInterface;
+use Tobento\Service\Database\Migration\DatabaseMigration;
 use Tobento\Service\Database\Schema\Table;
-use Tobento\Service\Migration\ActionInterface;
 
-$action = new DatabaseAction(
-    processor: $processor, // ProcessorInterface
-    database: $database, // DatabaseInterface
-    table: $table, // Table
-    name: 'A unique name', // or null
-    description: 'Database table migrated'
-);
+class DbMigrations extends DatabaseMigration
+{
+    public function description(): string
+    {
+        return 'db migrations';
+    }
 
-var_dump($action instanceof ActionInterface);
-// bool(true)
+    /**
+     * Register tables used by the install and uninstall methods
+     * to create the actions from.
+     *
+     * @return void
+     */
+    protected function registerTables(): void
+    {
+        $this->registerTable(
+            table: function(): Table {
+                $table = new Table(name: 'users');
+                $table->primary('id');
+                return $table;
+            },
+            database: $this->databases->default('pdo'),
+            name: 'Users',
+            description: 'Users desc',
+        );
+        
+        $this->registerTable(
+            table: function(): Table {
+                $table = new Table(name: 'products');
+                $table->primary('id');
+                return $table;
+            },
+            database: $this->databases->default('pdo'),
+        );
+    }
+}
 ```
+
+Check out the [Table Schema](#table-schema) for its documentation.
+
+**Using the ```install``` and ```uninstall``` methods**
+
+You may use the ```install``` and ```uninstall``` methods for specifing the actions by your own.
+
+```php
+use Tobento\Service\Database\Migration\DatabaseMigration;
+use Tobento\Service\Database\Migration\DatabaseAction;
+use Tobento\Service\Database\Migration\DatabaseDeleteAction;
+use Tobento\Service\Database\Schema\Table;
+use Tobento\Service\Migration\ActionsInterface;
+use Tobento\Service\Migration\Actions;
+
+class DbMigrations extends DatabaseMigration
+{
+    public function description(): string
+    {
+        return 'db migrations';
+    }
+
+    /**
+     * Return the actions to be processed on install.
+     *
+     * @return ActionsInterface
+     */
+    public function install(): ActionsInterface
+    {
+        return new Actions(
+            new DatabaseAction(
+                processor: $this->processor,
+                database: $this->databases->default('pdo'),
+                table: function(): Table {
+                    $table = new Table(name: 'products');
+                    $table->primary('id');
+                    return $table;
+                },
+                name: 'Products',
+                description: 'Products table installed',
+            ),
+        );
+    }
+    
+    /**
+     * Return the actions to be processed on uninstall.
+     *
+     * @return ActionsInterface
+     */
+    public function uninstall(): ActionsInterface
+    {
+        return $this->createDatabaseDeleteActionsFromInstall();
+        
+        // or manually:
+        return new Actions(
+            new DatabaseDeleteAction(
+                processor: $this->processor,
+                database: $this->databases->default('pdo'),
+                table: new Table(name: 'products'),
+                name: 'Products',
+                description: 'Products table uninstalled',
+            ),
+        );
+    }
+}
+```
+
+Check out the [Table Schema](#table-schema) for its documentation.
+
+#### Install And Uninstall Migration
+
+```php
+$result = $migrator->install(DbMigrations::class);
+
+$result = $migrator->uninstall(DbMigrations::class);
+```
+
+Check out the following migration service documentation to learn more about it.
+
+* [Create Migrator](https://github.com/tobento-ch/service-migration#create-migrator)
+* [Install Migration](https://github.com/tobento-ch/service-migration#install-migration)
+* [Uninstall Migration](https://github.com/tobento-ch/service-migration#uninstall-migration)
 
 # Credits
 
