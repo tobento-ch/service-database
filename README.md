@@ -41,6 +41,7 @@ With the Database Service you can create and manage databases easily.
         - [Security](#security)
         - [Migrator](#migrator)
             - [Create Migration](#create-migration)
+            - [Create Migration Seeder](#create-migration-seeder)
             - [Install And Uninstall Migration](#install-and-uninstall-migration)
 - [Credits](#credits)
 ___
@@ -1183,6 +1184,67 @@ class DbMigrations extends DatabaseMigration
     }
 }
 ```
+
+Check out the [Table Schema](#table-schema) for its documentation.
+
+#### Create Migration Seeder
+
+First, you will need to install the [Seeder Service](https://github.com/tobento-ch/service-seeder) and bind the ```SeedInterface::class``` implementation to your container in order to get injected on the ```DatabaseMigrationSeeder::class```.
+
+Next, create a migration seeder class by extending the ```DatabaseMigrationSeeder::class```.
+
+Then use the ```registerTables``` method to register the table for the install process.
+
+```php
+use Tobento\Service\Database\Migration\DatabaseMigrationSeeder;
+use Tobento\Service\Database\Schema\Table;
+use Tobento\Service\Iterable\ItemFactoryIterator;
+
+class DbMigrationsSeeder extends DatabaseMigrationSeeder
+{
+    public function description(): string
+    {
+        return 'db migrations seeding';
+    }
+
+    /**
+     * Register tables used by the install method
+     * to create the actions from.
+     * The uninstall method returns empty actions.
+     *
+     * @return void
+     */
+    protected function registerTables(): void
+    {
+        $this->registerTable(
+            table: function(): Table {
+                $table = new Table(name: 'users');
+                // no need to specifiy columns again
+                // if you the table migrated before.
+                
+                // seeding:
+                $table->items(new ItemFactoryIterator(
+                    factory: function(): array {
+                        return [
+                            'name' => $this->seed->fullname(),
+                            'email' => $this->seed->email(),
+                        ];
+                    },
+                    create: 10000
+                ))
+                ->chunk(length: 2000)
+                ->useTransaction(false) // default is true
+                ->forceInsert(true); // default is false
+                
+                return $table;
+            },
+            database: $this->databases->default('pdo'),
+        );
+    }
+}
+```
+
+Check out the [Seeder Service](https://github.com/tobento-ch/service-seeder) for its documentation.
 
 Check out the [Table Schema](#table-schema) for its documentation.
 
