@@ -19,6 +19,7 @@ use Tobento\Service\Database\Processor\ProcessorInterface;
 use Tobento\Service\Database\Processor\ProcessException;
 use Tobento\Service\Database\DatabaseInterface;
 use Tobento\Service\Database\Schema\Table;
+use Closure;
 
 /**
  * DatabaseAction
@@ -26,30 +27,41 @@ use Tobento\Service\Database\Schema\Table;
 class DatabaseAction implements ActionInterface
 {
     /**
+     * @var Table
+     */
+    protected Table $table;
+    
+    /**
      * Create a new DatabaseAction.
      *
      * @param ProcessorInterface $processor
      * @param DatabaseInterface $database
-     * @param Table $table
+     * @param Table|Closure $table
      * @param null|string $name A name of the action.
      * @param string $description A description of the action.
-     */    
+     */
     public function __construct(
         protected ProcessorInterface $processor,
         protected DatabaseInterface $database,
-        protected Table $table,
+        Table|Closure $table,
         protected null|string $name = null,
         protected string $description = '',
-    ) {}
+    ) {
+        if ($table instanceof Closure) {
+            $table = $table();
+        }
+        
+        $this->table = $table;
+    }
     
     /**
      * Process the action.
      *
      * @return void
      * @throws ActionFailedException
-     */    
+     */
     public function process(): void
-    {        
+    {
         try {
             $this->processor->process($this->table, $this->database);
         } catch (ProcessException $e) {
@@ -69,14 +81,14 @@ class DatabaseAction implements ActionInterface
      */
     public function name(): string
     {
-        return $this->name ?: $this::class;
+        return $this->name ?: $this->table->getName();
     }
  
     /**
      * Returns a description of the action.
      *
      * @return string
-     */    
+     */
     public function description(): string
     {
         return $this->description;
@@ -93,5 +105,35 @@ class DatabaseAction implements ActionInterface
             'database' => $this->database->name(),
             'table' => $this->table->getName(),
         ];
+    }
+    
+    /**
+     * Returns the processor.
+     *
+     * @return ProcessorInterface
+     */
+    public function processor(): ProcessorInterface
+    {
+        return $this->processor;
+    }
+    
+    /**
+     * Returns the database.
+     *
+     * @return DatabaseInterface
+     */
+    public function database(): DatabaseInterface
+    {
+        return $this->database;
+    }
+    
+    /**
+     * Returns the table.
+     *
+     * @return Table
+     */
+    public function table(): Table
+    {
+        return $this->table;
     }
 }
