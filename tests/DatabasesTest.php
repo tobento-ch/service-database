@@ -33,6 +33,23 @@ class DatabasesTest extends TestCase
             new Databases()
         );     
     }
+
+    public function testConstructor()
+    {
+        $databases = new Databases(
+            new PdoDatabase(
+                pdo: new PDO('sqlite::memory:'),
+                name: 'foo',
+            ),
+            new PdoDatabase(
+                pdo: new PDO('sqlite::memory:'),
+                name: 'bar',
+            ),            
+        );
+            
+        $this->assertTrue($databases->has('foo'));
+        $this->assertTrue($databases->has('bar'));
+    }
     
     public function testAddMethod()
     {
