@@ -34,11 +34,13 @@ class Databases implements DatabasesInterface
      * Create a new Databases.
      *
      * @param DatabaseInterface $database
-     */    
+     */
     public function __construct(
         DatabaseInterface ...$database,
     ) {
-        $this->databases = $database;
+        foreach($database as $db) {
+            $this->add($db);
+        }
     }
     
     /**
