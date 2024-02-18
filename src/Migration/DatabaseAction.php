@@ -39,6 +39,7 @@ class DatabaseAction implements ActionInterface
      * @param Table|Closure $table
      * @param null|string $name A name of the action.
      * @param string $description A description of the action.
+     * @param string $type A type of the action.
      */
     public function __construct(
         protected ProcessorInterface $processor,
@@ -46,6 +47,7 @@ class DatabaseAction implements ActionInterface
         Table|Closure $table,
         protected null|string $name = null,
         protected string $description = '',
+        protected string $type = 'database',
     ) {
         if ($table instanceof Closure) {
             $table = $table();
@@ -92,6 +94,16 @@ class DatabaseAction implements ActionInterface
     public function description(): string
     {
         return $this->description;
+    }
+    
+    /**
+     * Returns the type of the action.
+     *
+     * @return string
+     */
+    public function type(): string
+    {
+        return $this->type;
     }
     
     /**
