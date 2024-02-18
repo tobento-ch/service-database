@@ -63,6 +63,7 @@ class DatabaseActionTest extends TestCase
         
         $this->assertSame('Users', $action->name());
         $this->assertSame('Users desc', $action->description());
+        $this->assertSame('database', $action->type());
     }
     
     public function testNameMethodReturnsTableNameIfNoneSpecified()
