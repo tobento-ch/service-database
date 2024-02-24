@@ -40,6 +40,13 @@ interface DatabasesInterface
      * @return bool
      */    
     public function has(string $name): bool;
+    
+    /**
+     * Returns all database names.
+     *
+     * @return array
+     */
+    public function names(): array;
 
     /**
      * Adds a default name for the specified database.

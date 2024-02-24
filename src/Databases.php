@@ -104,6 +104,16 @@ class Databases implements DatabasesInterface
     {
         return array_key_exists($name, $this->databases);
     }
+    
+    /**
+     * Returns all database names.
+     *
+     * @return array
+     */
+    public function names(): array
+    {
+        return array_keys($this->databases);
+    }
 
     /**
      * Adds a default name for the specified database.
