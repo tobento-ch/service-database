@@ -124,6 +124,30 @@ class DatabasesTest extends TestCase
         $this->assertFalse($databases->has('foo')); 
     }
     
+    public function testNamesMethod()
+    {
+        $databases = new Databases();
+        
+        $this->assertSame([], $databases->names());
+        
+        $databases->add(new PdoDatabase(
+            pdo: new PDO('sqlite::memory:'),
+            name: 'foo',
+        ));
+        
+        $databases->register(
+            'bar',
+            function(string $name): DatabaseInterface {        
+                return new PdoDatabase(
+                    new PDO('sqlite::memory:'),
+                    $name
+                );
+            }
+        );
+            
+        $this->assertSame(['foo', 'bar'], $databases->names());
+    }
+    
     public function testAddDefaultMethod()
     {
         $databases = new Databases();
