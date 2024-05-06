@@ -14,7 +14,15 @@ declare(strict_types=1);
 namespace Tobento\Service\Database;
 
 interface DatabasesInterface
-{    
+{
+    /**
+     * Add a database.
+     *
+     * @param DatabaseInterface $database
+     * @return static $this
+     */
+    public function add(DatabaseInterface $database): static;
+    
     /**
      * Register a database.
      *
