@@ -581,6 +581,9 @@ $table->index('index_name')->column('name', 'another_name')->unique();
 
 ```php
 $table->index()->column('name')->primary();
+
+// drop primary index:
+$table->index()->column('name')->primary()->drop();
 ```
 
 **Rename index**
