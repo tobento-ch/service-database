@@ -105,7 +105,7 @@ class PdoMySqlStorageTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(16, count($savedTable->getColumns()));
-        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(0, $savedTable->getItemsCount());
         
@@ -145,7 +145,7 @@ class PdoMySqlStorageTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(1, count($savedTable->getColumns()));
-        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(0, $savedTable->getItemsCount());
         
@@ -341,7 +341,7 @@ class PdoMySqlStorageTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(1, count($savedTable->getColumns()));
-        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(0, $savedTable->getItemsCount());
         

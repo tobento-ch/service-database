@@ -1090,7 +1090,7 @@ class PdoMySqlGrammarTest extends TestCase
         $statements = $grammar->createStatements($table, null);
         
         $this->assertSame(2, count($statements->getStatements()));
-
+        
         $this->assertSame(
             'ALTER TABLE `products` ADD PRIMARY KEY (`foo`)',
             $statements->getStatements()[1]->getStatement()

@@ -84,7 +84,7 @@ class PdoMySqlProcessorTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(1, count($savedTable->getColumns()));
-        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(0, $savedTable->getItemsCount());
         $this->assertSame('id', $savedTable->getColumns()['id']->getName());
@@ -112,7 +112,7 @@ class PdoMySqlProcessorTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(3, count($savedTable->getColumns()));
-        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(0, $savedTable->getItemsCount());
         
@@ -151,7 +151,7 @@ class PdoMySqlProcessorTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(4, count($savedTable->getColumns()));
-        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(0, $savedTable->getItemsCount());
         
@@ -190,7 +190,7 @@ class PdoMySqlProcessorTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(3, count($savedTable->getColumns()));
-        $this->assertSame(2, count($savedTable->getIndexes()));
+        $this->assertSame(3, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(0, $savedTable->getItemsCount());
         
@@ -200,13 +200,80 @@ class PdoMySqlProcessorTest extends TestCase
         );
         
         $this->assertSame(
-            ['index_int', 'index_bigInt'],
+            ['id', 'index_int', 'index_bigInt'],
             array_keys($savedTable->getIndexes())
         );        
         
         $this->dropTable($tableName);
-    }    
+    }
  
+    public function testProcessCanRemovePrimaryIndex()
+    {
+        $tableName = 'products';
+        
+        $this->dropTable($tableName);
+        
+        $table = new Table(name: $tableName);
+        $table->int('foo');
+        $table->index()->column('foo')->primary();        
+        $table->int('int');
+        
+        $processor = new PdoMySqlProcessor();
+        
+        $processor->process($table, $this->database);
+                
+        // new and modify columns
+        $table = new Table(name: $tableName);
+        $table->int('foo');
+        $table->index()->column('foo')->primary()->drop();
+        
+        $processor->process($table, $this->database);
+        
+        $storage = new PdoMySqlStorage();
+        
+        $savedTable = $storage->fetchTable($this->database, $tableName);
+        
+        $this->assertSame(2, count($savedTable->getColumns()));
+        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(null, $savedTable->getItems());
+        $this->assertSame(0, $savedTable->getItemsCount());    
+        
+        $this->dropTable($tableName);
+    }
+    
+    public function testProcessCanRemovePrimaryColumn()
+    {
+        $tableName = 'products';
+        
+        $this->dropTable($tableName);
+        
+        $table = new Table(name: $tableName);
+        $table->int('foo');
+        $table->index()->column('foo')->primary();        
+        $table->int('int');
+        
+        $processor = new PdoMySqlProcessor();
+        
+        $processor->process($table, $this->database);
+                
+        // new and modify columns
+        $table = new Table(name: $tableName);
+        $table->dropColumn('foo');
+        
+        $processor->process($table, $this->database);
+        
+        $storage = new PdoMySqlStorage();
+        
+        $savedTable = $storage->fetchTable($this->database, $tableName);
+        
+        $this->assertSame(1, count($savedTable->getColumns()));
+        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(null, $savedTable->getItems());
+        $this->assertSame(0, $savedTable->getItemsCount());    
+        
+        $this->dropTable($tableName);
+    }
+    
     public function testProcessWithItems()
     {
         $tableName = 'products';
@@ -235,7 +302,7 @@ class PdoMySqlProcessorTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(3, count($savedTable->getColumns()));
-        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(2, $savedTable->getItemsCount());   
         
@@ -275,7 +342,7 @@ class PdoMySqlProcessorTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(3, count($savedTable->getColumns()));
-        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(2, $savedTable->getItemsCount());   
         
@@ -321,7 +388,7 @@ class PdoMySqlProcessorTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(3, count($savedTable->getColumns()));
-        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(3, $savedTable->getItemsCount());   
         
@@ -382,7 +449,7 @@ class PdoMySqlProcessorTest extends TestCase
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
         $this->assertSame(1, count($savedTable->getColumns()));
-        $this->assertSame(0, count($savedTable->getIndexes()));
+        $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(0, $savedTable->getItemsCount());
         $this->assertSame('id', $savedTable->getColumns()['id']->getName());
@@ -390,7 +457,7 @@ class PdoMySqlProcessorTest extends TestCase
         $savedTableUsers = $storage->fetchTable($this->database, $tableNameUsers);
         
         $this->assertSame(1, count($savedTableUsers->getColumns()));
-        $this->assertSame(0, count($savedTableUsers->getIndexes()));
+        $this->assertSame(1, count($savedTableUsers->getIndexes()));
         $this->assertSame(null, $savedTableUsers->getItems());
         $this->assertSame(0, $savedTableUsers->getItemsCount());
         $this->assertSame('id', $savedTableUsers->getColumns()['id']->getName());        
