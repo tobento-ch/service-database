@@ -124,11 +124,6 @@ class PdoMySqlGrammar implements GrammarInterface
                 $create[$column->getName()] = $column;
                 continue;
             }
-            
-            // can only be set on creation, so skip them.
-            if (in_array($column->getType(), ['primary', 'bigPrimary'])) {                
-                continue;
-            }            
 
             $savedColumn = $savedTable->getColumn($column->getName());
 
@@ -158,15 +153,15 @@ class PdoMySqlGrammar implements GrammarInterface
         {
             $statements[] = $statement;
         }
-        
-        // build delete column statements.
-        foreach($this->buildDeleteColumnStatements($delete, $table) as $statement)
-        {
-            $statements[] = $statement;
-        }
 
         // build indexes statements.
         foreach($this->buildIndexesStatements($table, $savedTable) as $statement)
+        {
+            $statements[] = $statement;
+        }
+        
+        // build delete column statements.
+        foreach($this->buildDeleteColumnStatements($delete, $table) as $statement)
         {
             $statements[] = $statement;
         }
@@ -421,14 +416,25 @@ class PdoMySqlGrammar implements GrammarInterface
         
         foreach($table->getIndexes() as $index)
         {
-            // check if inxex columns exists.
+            // check if index columns exists.
             if (! $this->tableHasIndexColumns($index, $table, $savedTable)) {
                 $index->drop(true);
                 continue;
             }
             
+            if ($index->isPrimary()) {
+                $colname = $index->getColumns()[0] ?? '';
+                if (!is_null($savedTable?->getIndex($colname))) {
+                    $statements[] = new Statement(
+                        statement: 'ALTER TABLE '.$this->backtickValue($table->getName()).' DROP PRIMARY KEY',
+                        bindings: [],
+                        transactionable: true
+                    );
+                }
+            }
+            
             // drop index if dropping or renaming.
-            if ($index->dropping() || $index->getRename()) {
+            if (!$index->isPrimary() && ($index->dropping() || $index->getRename())) {
                 // skip if index does not exist.
                 if (is_null($savedTable?->getIndex($index->getName()))) {
                     continue;
@@ -471,6 +477,9 @@ class PdoMySqlGrammar implements GrammarInterface
             $compileColumns = $this->compileIndexColumns($index);
             
             if ($index->isPrimary()) {
+                if ($index->dropping()) {
+                    continue;
+                }
                 $segments[] = ' ADD PRIMARY KEY '.$compileColumns;
 
                 $statements[] = new Statement(
