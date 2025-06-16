@@ -274,7 +274,7 @@ class PdoMySqlStorage implements StorageInterface
             $name = $data['Key_name'];
             
             if ($name === 'PRIMARY') {
-                continue;
+                $name = $data['Column_name'];
             }
             
             $index = $indexes[$name] ?? new Index($name);
@@ -290,6 +290,9 @@ class PdoMySqlStorage implements StorageInterface
             
             // handle primary.
             // Ignore as only one can be primary.
+            if ($name === 'PRIMARY') {
+                $index->primary(true);
+            }
             
             $indexes[$name] = $index;
         }
