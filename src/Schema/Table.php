@@ -63,7 +63,7 @@ class Table
      *
      * @param string $name The name of the table.
      * @param ColumnInterface ...$columns
-     */    
+     */
     public function __construct(
         protected string $name,
         ColumnInterface ...$columns
@@ -77,10 +77,23 @@ class Table
      * Returns the table name.
      *
      * @return string
-     */    
+     */
     public function getName(): string
     {
         return $this->name;
+    }
+    
+    /**
+     * Returns a new instance with the given table name.
+     *
+     * @param string $name
+     * @return static
+     */
+    public function withName(string $name): static
+    {
+        $new = clone $this;
+        $new->name = $name;
+        return $new;
     }
  
     /**
@@ -88,7 +101,7 @@ class Table
      *
      * @param null|string $rename
      * @return static $this
-     */    
+     */
     public function renameTable(null|string $rename): static
     {
         $this->rename = $rename;
@@ -99,7 +112,7 @@ class Table
      * Returns the rename of the index if one.
      *
      * @return null|string
-     */    
+     */
     public function getRename(): null|string
     {
         return $this->rename;
@@ -110,7 +123,7 @@ class Table
      *
      * @param ColumnInterface $column
      * @return static $this
-     */    
+     */
     public function addColumn(ColumnInterface $column): static
     {
         $this->columns[$column->getName()] = $column;
@@ -121,7 +134,7 @@ class Table
      * Returns the table columns.
      *
      * @return array<string, ColumnInterface>
-     */    
+     */
     public function getColumns(): array
     {
         return $this->columns;
@@ -131,7 +144,7 @@ class Table
      * Returns the table column if exists.
      *
      * @return null|ColumnInterface
-     */    
+     */
     public function getColumn(string $name): null|ColumnInterface
     {
         return $this->columns[$name] ?? null;
@@ -142,7 +155,7 @@ class Table
      *
      * @param IndexInterface $index
      * @return static $this
-     */    
+     */
     public function addIndex(IndexInterface $index): static
     {
         $this->indexes[$index->getName()] = $index;
@@ -153,7 +166,7 @@ class Table
      * Returns the table indexes.
      *
      * @return array<string, IndexInterface>
-     */    
+     */
     public function getIndexes(): array
     {
         return $this->indexes;
@@ -163,7 +176,7 @@ class Table
      * Returns the table index if exists.
      *
      * @return null|IndexInterface
-     */    
+     */
     public function getIndex(string $name): null|IndexInterface
     {
         return $this->indexes[$name] ?? null;
@@ -174,7 +187,7 @@ class Table
      *
      * @param null|iterable $iterable
      * @return ItemsInterface
-     */    
+     */
     public function items(null|iterable $iterable): null|ItemsInterface
     {
         return $this->items = new Items(iterable: $iterable);
@@ -184,7 +197,7 @@ class Table
      * Returns the table items.
      *
      * @return null|ItemsInterface
-     */    
+     */
     public function getItems(): null|ItemsInterface
     {    
         return $this->items;
@@ -195,7 +208,7 @@ class Table
      *
      * @param int $itemsCount
      * @return static $this
-     */    
+     */
     public function itemsCount(int $itemsCount): static
     {
         $this->itemsCount = $itemsCount;
@@ -206,7 +219,7 @@ class Table
      * Returns the table items count.
      *
      * @return int
-     */    
+     */
     public function getItemsCount(): int
     {
         return $this->itemsCount;
@@ -231,7 +244,7 @@ class Table
      * @param string $name
      * @param mixed $default
      * @return mixed
-     */    
+     */
     public function getParameter(string $name, mixed $default = null): mixed
     {
         return $this->parameters[$name] ?? $default;
@@ -242,7 +255,7 @@ class Table
      *
      * @param string $name
      * @return PrimaryColumn
-     */    
+     */
     public function primary(string $name): PrimaryColumn
     {
         return $this->addedColumn(new PrimaryColumn($name));
@@ -253,7 +266,7 @@ class Table
      *
      * @param string $name
      * @return BigPrimaryColumn
-     */    
+     */
     public function bigPrimary(string $name): BigPrimaryColumn
     {
         return $this->addedColumn(new BigPrimaryColumn($name));
@@ -264,7 +277,7 @@ class Table
      *
      * @param string $name
      * @return BoolColumn
-     */    
+     */
     public function bool(string $name): BoolColumn
     {
         return $this->addedColumn(new BoolColumn($name));
@@ -276,7 +289,7 @@ class Table
      * @param string $name
      * @param int $length
      * @return IntColumn
-     */    
+     */
     public function int(string $name, int $length = 11): IntColumn
     {
         return $this->addedColumn(new IntColumn($name, $length));
@@ -288,7 +301,7 @@ class Table
      * @param string $name
      * @param int $length
      * @return TinyIntColumn
-     */    
+     */
     public function tinyInt(string $name, int $length = 1): TinyIntColumn
     {
         return $this->addedColumn(new TinyIntColumn($name, $length));
@@ -300,7 +313,7 @@ class Table
      * @param string $name
      * @param int $length
      * @return BigIntColumn
-     */    
+     */
     public function bigInt(string $name, int $length = 20): BigIntColumn
     {
         return $this->addedColumn(new BigIntColumn($name, $length));
@@ -312,7 +325,7 @@ class Table
      * @param string $name
      * @param int $length
      * @return CharColumn
-     */    
+     */
     public function char(string $name, int $length = 255): CharColumn
     {
         return $this->addedColumn(new CharColumn($name, $length));
@@ -324,7 +337,7 @@ class Table
      * @param string $name
      * @param int $length
      * @return StringColumn
-     */    
+     */
     public function string(string $name, int $length = 255): StringColumn
     {
         return $this->addedColumn(new StringColumn($name, $length));
@@ -335,10 +348,21 @@ class Table
      *
      * @param string $name
      * @return TextColumn
-     */    
+     */
     public function text(string $name): TextColumn
     {
         return $this->addedColumn(new TextColumn($name));
+    }
+    
+    /**
+     * Adds a blob column.
+     *
+     * @param string $name
+     * @return BlobColumn
+     */
+    public function blob(string $name): BlobColumn
+    {
+        return $this->addedColumn(new BlobColumn($name));
     }
     
     /**
@@ -346,7 +370,7 @@ class Table
      *
      * @param string $name
      * @return DoubleColumn
-     */    
+     */
     public function double(string $name): DoubleColumn
     {
         return $this->addedColumn(new DoubleColumn($name));
@@ -357,7 +381,7 @@ class Table
      *
      * @param string $name
      * @return FloatColumn
-     */    
+     */
     public function float(string $name): FloatColumn
     {
         return $this->addedColumn(new FloatColumn($name));
@@ -370,7 +394,7 @@ class Table
      * @param int $precision
      * @param int $scale     
      * @return DecimalColumn
-     */    
+     */
     public function decimal(string $name, int $precision = 10, int $scale = 0): DecimalColumn
     {
         return $this->addedColumn(new DecimalColumn($name, $precision, $scale));
@@ -381,7 +405,7 @@ class Table
      *
      * @param string $name
      * @return DatetimeColumn
-     */    
+     */
     public function datetime(string $name): DatetimeColumn
     {
         return $this->addedColumn(new DatetimeColumn($name));
@@ -392,7 +416,7 @@ class Table
      *
      * @param string $name
      * @return DateColumn
-     */    
+     */
     public function date(string $name): DateColumn
     {
         return $this->addedColumn(new DateColumn($name));
@@ -403,7 +427,7 @@ class Table
      *
      * @param string $name
      * @return TimeColumn
-     */    
+     */
     public function time(string $name): TimeColumn
     {
         return $this->addedColumn(new TimeColumn($name));
@@ -414,7 +438,7 @@ class Table
      *
      * @param string $name
      * @return TimestampColumn
-     */    
+     */
     public function timestamp(string $name): TimestampColumn
     {
         return $this->addedColumn(new TimestampColumn($name));
@@ -425,7 +449,7 @@ class Table
      *
      * @param string $name
      * @return JsonColumn
-     */    
+     */
     public function json(string $name): JsonColumn
     {
         return $this->addedColumn(new JsonColumn($name));
@@ -437,7 +461,7 @@ class Table
      * @param string $from
      * @param string $to
      * @return RenameColumn
-     */    
+     */
     public function renameColumn(string $from, string $to): RenameColumn
     {
         return $this->addedColumn(new RenameColumn($from, $to));
@@ -448,7 +472,7 @@ class Table
      *
      * @param string $name
      * @return DropColumn
-     */    
+     */
     public function dropColumn(string $name): DropColumn
     {
         return $this->addedColumn(new DropColumn($name));
@@ -459,7 +483,7 @@ class Table
      *
      * @param string $name
      * @return Index
-     */    
+     */
     public function index(string $name = ''): Index
     {
         $index = new Index($name);
@@ -472,7 +496,7 @@ class Table
      *
      * @param bool $truncate
      * @return static $this
-     */    
+     */
     public function truncate(bool $truncate = true): static
     {
         $this->truncate = $truncate;
@@ -483,7 +507,7 @@ class Table
      * Returns true if to truncate the table, otherwise false.
      *
      * @return bool
-     */    
+     */
     public function truncating(): bool
     {
         return $this->truncate;
@@ -494,7 +518,7 @@ class Table
      *
      * @param bool $drop
      * @return static $this
-     */    
+     */
     public function dropTable(bool $drop = true): static
     {
         $this->drop = $drop;
@@ -505,7 +529,7 @@ class Table
      * Returns true if to drop the table, otherwise false.
      *
      * @return bool
-     */    
+     */
     public function dropping(): bool
     {
         return $this->drop;
@@ -516,7 +540,7 @@ class Table
      *
      * @param ColumnInterface $column
      * @return ColumnInterface
-     */    
+     */
     protected function addedColumn(ColumnInterface $column): ColumnInterface
     {
         $this->addColumn($column);
