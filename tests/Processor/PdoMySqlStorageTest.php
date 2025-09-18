@@ -76,6 +76,7 @@ class PdoMySqlStorageTest extends TestCase
             'char',
             'string',
             'text',
+            'blob',
             'double',
             'float',
             'decimal',
@@ -104,7 +105,7 @@ class PdoMySqlStorageTest extends TestCase
         
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
-        $this->assertSame(16, count($savedTable->getColumns()));
+        $this->assertSame(17, count($savedTable->getColumns()));
         $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(null, $savedTable->getItems());
         $this->assertSame(0, $savedTable->getItemsCount());
