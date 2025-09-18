@@ -33,6 +33,15 @@ class TableTest extends TestCase
         ); 
     }
     
+    public function testWithNameMethod()
+    {
+        $table = new Table('users');
+        $tableNew = (new Table('users'))->withName('foo');
+        
+        $this->assertFalse($table === $tableNew);
+        $this->assertSame('foo', $tableNew->getName());
+    }
+    
     public function testAddColumnMethod()
     {
         $table = new Table('users');
