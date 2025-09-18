@@ -46,6 +46,7 @@ class PdoMySqlStorage implements StorageInterface
         'char' => 'char',
         'varchar' => 'string',
         'text' => 'text',
+        'blob' => 'blob',
         'double' => 'double',
         'float' => 'float',
         'decimal' => 'decimal',

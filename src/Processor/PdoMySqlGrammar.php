@@ -42,6 +42,7 @@ class PdoMySqlGrammar implements GrammarInterface
         'char' => 'char',
         'string' => 'varchar',
         'text' => 'text',
+        'blob' => 'blob',
         'double' => 'double',
         'float' => 'float',
         'decimal' => 'decimal',
