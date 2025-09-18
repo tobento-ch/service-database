@@ -33,9 +33,11 @@ With the Database Service you can create and manage databases easily.
             - [Index Factory](#index-factory)
         - [Processors](#processors)
             - [Pdo MySql Processor](#pdo-mysql-processor)
+            - [Pdo Sqlite Processor](#pdo-sqlite-processor)
             - [Stack Processor](#stack-processor)
         - [Storages](#storages)
             - [Pdo MySql Storage](#pdo-mysql-storage)
+            - [Pdo Sqlite Storage](#pdo-sqlite-storage)
             - [Stack Storage](#stack-storage)
             - [Custom Storage](#custom-storage)
         - [Security](#security)
@@ -449,6 +451,7 @@ $table->bool('active', true);
 | --- | --- | --- | --- | --- | --- | --- |
 | **primary** | name: 'column' | yes | no | no | yes | Usually mapped as int, auto-incrementing and added as primary index column. |
 | **bigPrimary** | name: 'column' | yes | no | no | yes | Usually mapped as bigint, auto-incrementing and added as primary index column. |
+| **blob** | name: 'column' | no | yes | yes | no | - |
 | **bool** | name: 'column' | no | no | yes | no | Some databases will store it as tinyint (1/0). |
 | **int** | name: 'column', length: 11 | yes | yes | yes | yes | - |
 | **tinyInt** | name: 'column', length: 1 | yes | yes | yes | yes | - |
@@ -585,6 +588,9 @@ $table->index()->column('name')->primary();
 // drop primary index:
 $table->index()->column('name')->primary()->drop();
 ```
+
+> [!NOTE]  
+> Sqlite does not support adding or dropping primary key indexes!
 
 **Rename index**
 
@@ -885,12 +891,46 @@ try {
 }
 ```
 
-You may create a [Custom Storage](#custom-storage) for the proccssor. The default storage [Pdo MySql Storage](#pdo-mysql-storage) will query the database to create the current table as to determine modifications.
+You may create a [Custom Storage](#custom-storage) for the processor. The default storage [Pdo MySql Storage](#pdo-mysql-storage) will query the database to create the current table as to determine modifications.
 
 ```php
 use Tobento\Service\Database\Processor\PdoMySqlProcessor;
 
 $processor = new PdoMySqlProcessor(new CustomStorage());
+```
+
+#### Pdo Sqlite Processor
+
+The proccessor will automatically determine if to add or modify table columns and indexes.
+
+```php
+use Tobento\Service\Database\Processor\PdoSqliteProcessor;
+use Tobento\Service\Database\Processor\ProcessorInterface;
+use Tobento\Service\Database\Processor\ProcessException;
+use Tobento\Service\Database\PdoDatabaseInterface;
+use Tobento\Service\Database\Schema\Table;
+
+$processor = new PdoSqliteProcessor();
+
+var_dump($processor instanceof ProcessorInterface);
+// bool(true)
+
+try {
+    $processor->process(
+        $table, // Table
+        $database // PdoDatabaseInterface
+    );    
+} catch (ProcessException $e) {
+    // Handle exception.
+}
+```
+
+You may create a [Custom Storage](#custom-storage) for the processor. The default storage [Pdo Sqlite Storage](#pdo-sqlite-storage) will query the database to create the current table as to determine modifications.
+
+```php
+use Tobento\Service\Database\Processor\PdoSqliteProcessor;
+
+$processor = new PdoSqliteProcessor(new CustomStorage());
 ```
 
 #### Stack Processor
@@ -965,6 +1005,65 @@ use Tobento\Service\Database\PdoDatabaseInterface;
 use Tobento\Service\Database\Schema\Table;
 
 $storage = new PdoMySqlStorage();
+
+var_dump($storage instanceof StorageInterface);
+// bool(true)
+
+try {
+    $storage->storeTable(
+        $database, // PdoDatabaseInterface
+        $table // Table
+    );
+
+} catch (StorageStoreException $e) {
+    // Handle exception.
+}
+```
+
+#### Pdo Sqlite Storage
+
+**fetchTable**
+
+The storage will query the database to create the current table.
+
+```php
+use Tobento\Service\Database\Processor\PdoSqliteStorage;
+use Tobento\Service\Database\Processor\StorageInterface;
+use Tobento\Service\Database\Processor\StorageFetchException;
+use Tobento\Service\Database\PdoDatabaseInterface;
+use Tobento\Service\Database\Schema\Table;
+
+$storage = new PdoSqliteStorage();
+
+var_dump($storage instanceof StorageInterface);
+// bool(true)
+
+try {
+    $table = $storage->fetchTable(
+        $database, // PdoDatabaseInterface
+        'table_name'
+    );
+    
+    var_dump($table instanceof Table);
+    // bool(true) or NULL if table does not exist.
+
+} catch (StorageFetchException $e) {
+    // Handle exception.
+}
+```
+
+**storeTable**
+
+No table data is stored as fetching will create the table.
+
+```php
+use Tobento\Service\Database\Processor\PdoSqliteStorage;
+use Tobento\Service\Database\Processor\StorageInterface;
+use Tobento\Service\Database\Processor\StorageStoreException;
+use Tobento\Service\Database\PdoDatabaseInterface;
+use Tobento\Service\Database\Schema\Table;
+
+$storage = new PdoSqliteStorage();
 
 var_dump($storage instanceof StorageInterface);
 // bool(true)
