@@ -62,6 +62,14 @@ interface IndexInterface
     public function isPrimary(): bool;
     
     /**
+     * Set whether to rename the index.
+     *
+     * @param string $rename
+     * @return static $this
+     */
+    public function rename(string $rename): static;
+    
+    /**
      * Returns the rename of the index if one.
      *
      * @return null|string
