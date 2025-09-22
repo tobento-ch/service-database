@@ -746,10 +746,6 @@ class PdoSqliteGrammar implements GrammarInterface
             $clause[] = 'PRIMARY KEY'; // AUTOINCREMENT
         }
         
-        if (in_array($column->getType(), ['json'])) {
-            $clause[] = 'CHECK (json_valid('.$column->getName().'))';
-        }
-        
         return implode(' ', $clause);
     }
     
