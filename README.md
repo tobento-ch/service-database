@@ -58,7 +58,7 @@ composer require tobento/service-database
 
 ## Requirements
 
-- PHP 8.0 or greater
+- PHP 8.4 or greater
 
 ## Highlights
 
@@ -732,7 +732,7 @@ use Tobento\Service\Database\Schema\ColumnInterface;
 use Tobento\Service\Database\Schema\CreateColumnException;
 
 try {
-    $column = (new ColumnFactory())->createColumn(type: 'int', name: 'foo');
+    $column = new ColumnFactory()->createColumn(type: 'int', name: 'foo');
     
     var_dump($column instanceof ColumnInterface);
     // bool(true)
@@ -752,7 +752,7 @@ use Tobento\Service\Database\Schema\ColumnInterface;
 use Tobento\Service\Database\Schema\CreateColumnException;
 
 try {
-    $column = (new ColumnFactory())->createColumnFromArray([
+    $column = new ColumnFactory()->createColumnFromArray([
         'type' => 'int',
         'name' => 'foo',
     ]);
@@ -770,7 +770,7 @@ Lengthable, Nullable, Defaultable, Unsignable and Parameters column definitions:
 ```php
 use Tobento\Service\Database\Schema\ColumnFactory;
 
-$column = (new ColumnFactory())->createColumnFromArray([
+$column = new ColumnFactory()->createColumnFromArray([
     'type' => 'int',
     'name' => 'foo',
     
@@ -810,7 +810,7 @@ use Tobento\Service\Database\Schema\IndexInterface;
 use Tobento\Service\Database\Schema\CreateIndexException;
 
 try {
-    $index = (new IndexFactory())->createIndex(name: 'foo');
+    $index = new IndexFactory()->createIndex(name: 'foo');
     
     var_dump($index instanceof IndexInterface);
     // bool(true)
@@ -828,7 +828,7 @@ use Tobento\Service\Database\Schema\IndexInterface;
 use Tobento\Service\Database\Schema\CreateIndexException;
 
 try {
-    $index = (new IndexFactory())->createIndexFromArray([
+    $index = new IndexFactory()->createIndexFromArray([
         'name' => 'foo',
     ]);
     
@@ -845,7 +845,7 @@ Other parameter definitions:
 ```php
 use Tobento\Service\Database\Schema\IndexFactory;
 
-$index = (new IndexFactory())->createIndexFromArray([
+$index = new IndexFactory()->createIndexFromArray([
     'name' => 'foo',
     
     'column' => 'name',
@@ -1133,7 +1133,7 @@ class CustomStorage implements StorageInterface
      * Returns the specified table if exist, otherwise null.
      *
      * @param DatabaseInterface $database
-     * @param string $name The table name
+     * @param string $table The table name
      * @return null|Table
      * @throws StorageFetchException
      */    
@@ -1147,7 +1147,7 @@ class CustomStorage implements StorageInterface
      * Store the table.
      *
      * @param DatabaseInterface $database
-     * @param string $name
+     * @param Table $table
      * @return void
      * @throws StorageStoreException
      */    
@@ -1158,7 +1158,7 @@ class CustomStorage implements StorageInterface
 }
 
 try {
-    $table = (new CustomStorage())->fetchTable($database, 'table_name');
+    $table = new CustomStorage()->fetchTable($database, 'table_name');
 } catch (ProcessException $e) {
     // Handle exception.
 }
@@ -1204,7 +1204,7 @@ class DbMigrations extends DatabaseMigration
                 $table->primary('id');
                 return $table;
             },
-            database: $this->databases->default('pdo'),
+            database: $this->databases()->default('pdo'),
             name: 'Users',
             description: 'Users desc',
         );
@@ -1215,7 +1215,7 @@ class DbMigrations extends DatabaseMigration
                 $table->primary('id');
                 return $table;
             },
-            database: $this->databases->default('pdo'),
+            database: $this->databases()->default('pdo'),
         );
     }
 }
@@ -1252,7 +1252,7 @@ class DbMigrations extends DatabaseMigration
         return new Actions(
             new DatabaseAction(
                 processor: $this->processor,
-                database: $this->databases->default('pdo'),
+                database: $this->databases()->default('pdo'),
                 table: function(): Table {
                     $table = new Table(name: 'products');
                     $table->primary('id');
@@ -1277,7 +1277,7 @@ class DbMigrations extends DatabaseMigration
         return new Actions(
             new DatabaseDeleteAction(
                 processor: $this->processor,
-                database: $this->databases->default('pdo'),
+                database: $this->databases()->default('pdo'),
                 table: new Table(name: 'products'),
                 name: 'Products',
                 description: 'Products table uninstalled',
@@ -1340,7 +1340,7 @@ class DbMigrationsSeeder extends DatabaseMigrationSeeder
                 
                 return $table;
             },
-            database: $this->databases->default('pdo'),
+            database: $this->databases()->default('pdo'),
         );
     }
 }
