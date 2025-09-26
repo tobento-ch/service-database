@@ -244,7 +244,9 @@ class PdoDatabaseTransactionTest extends TestCase
     
     public function tearDown(): void
     {
-        $this->dropTable($this->tableProducts);
+        if (!is_null($this->tableProducts)) {
+            $this->dropTable($this->tableProducts);
+        }
     }
     
     protected function dropTable(Table $table): void
