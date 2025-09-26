@@ -16,7 +16,7 @@ namespace Tobento\Service\Database\Schema;
 use IteratorAggregate;
 
 /**
- * ItemsInterface
+ * @extends IteratorAggregate<string, mixed>
  */
 interface ItemsInterface extends IteratorAggregate
 {

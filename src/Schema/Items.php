@@ -45,7 +45,7 @@ class Items implements ItemsInterface
     /**
      * Create a new Items.
      *
-     * @param iterable $iterable
+     * @param iterable $iterable<string, mixed>
      */
     public function __construct(
         iterable $iterable
@@ -122,7 +122,7 @@ class Items implements ItemsInterface
     /**
      * Returns the iterator.
      *
-     * @return Traversable
+     * @return Traversable<string, mixed>
      */
     public function getIterator(): Traversable
     {
