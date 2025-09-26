@@ -59,7 +59,7 @@ class Storages implements StorageInterface
      * Returns the specified table if exist, otherwise null.
      *
      * @param DatabaseInterface $database
-     * @param string $name The table name
+     * @param string $table The table name
      * @return null|Table
      * @throws StorageFetchException
      */    
@@ -79,7 +79,7 @@ class Storages implements StorageInterface
      * Store the table.
      *
      * @param DatabaseInterface $database
-     * @param string $name
+     * @param Table $table
      * @return void
      * @throws StorageStoreException
      */    

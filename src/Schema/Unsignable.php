@@ -21,7 +21,7 @@ interface Unsignable
     /**
      * Set if the column is unsigned.
      *
-     * @param bool $nullable
+     * @param bool $unsigned
      * @return static $this
      */    
     public function unsigned(bool $unsigned = true): static;
