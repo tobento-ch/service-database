@@ -47,6 +47,16 @@ abstract class DatabaseMigration implements MigrationInterface
     }
     
     /**
+     * Returns the databases.
+     *
+     * @return DatabasesInterface
+     */
+    protected function databases(): DatabasesInterface
+    {
+        return $this->databases;
+    }
+    
+    /**
      * Return a description of the migration.
      *
      * @return string
@@ -135,6 +145,7 @@ abstract class DatabaseMigration implements MigrationInterface
      * Returns the actions created from the install method actions.
      *
      * @return ActionsInterface
+     * @psalm-suppress UndefinedInterfaceMethod
      */
     protected function createDatabaseDeleteActionsFromInstall(): ActionsInterface
     {
