@@ -16,9 +16,10 @@ namespace Tobento\Service\Database\Processor;
 use Tobento\Service\Database\Schema\Table;
 use IteratorAggregate;
 use ArrayIterator;
+use Traversable;
 
 /**
- * Statements
+ * @implements IteratorAggregate<int, Statement>
  */
 class Statements implements IteratorAggregate
 {
@@ -56,9 +57,9 @@ class Statements implements IteratorAggregate
     /**
      * Returns an iterator for the statements.
      *
-     * @return ArrayIterator
+     * @return Traversable<int, Statement>
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->statements);
     }    
