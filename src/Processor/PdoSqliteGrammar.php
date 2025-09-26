@@ -296,7 +296,7 @@ class PdoSqliteGrammar implements GrammarInterface
     /**
      * Returns the built update column statements based on the specified columns.
      *
-     * @param array<string, ColumnInterface> $savedColumns
+     * @param Table $savedTable
      * @param array<string, ColumnInterface> $updateColumns
      * @param array<string, ColumnInterface> $deleteColumns
      * @param Table $table
@@ -639,6 +639,9 @@ class PdoSqliteGrammar implements GrammarInterface
         
         $columns = [];
         
+        /**
+         * @var array<string, mixed> $firstItem
+         */
         foreach(array_keys($firstItem) as $column) {
             $columns[] = $this->backtickValue($column);
         }
@@ -708,8 +711,8 @@ class PdoSqliteGrammar implements GrammarInterface
      * @param ColumnInterface $column
      * @param Table $table
      * @return string
-     *
      * @throws GrammarException
+     * @psalm-suppress PossiblyUnusedParam $table
      */
     protected function compileColumn(ColumnInterface $column, Table $table): string
     {

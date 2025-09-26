@@ -75,7 +75,7 @@ class PdoSqliteStorage implements StorageInterface
      * Returns the specified table if exist, otherwise null.
      *
      * @param DatabaseInterface $database
-     * @param string $name The table name
+     * @param string $table The table name
      * @return null|Table
      * @throws StorageFetchException
      *
@@ -98,8 +98,6 @@ class PdoSqliteStorage implements StorageInterface
         if (empty($columns)) {
             return null;
         }
-        
-        //echo '<pre>'; print_r($columns); exit;
         
         $table = new Table($table);
         
@@ -125,7 +123,7 @@ class PdoSqliteStorage implements StorageInterface
      * Store the table.
      *
      * @param DatabaseInterface $database
-     * @param string $name
+     * @param Table $table
      * @return void
      * @throws StorageStoreException
      */
@@ -198,6 +196,8 @@ class PdoSqliteStorage implements StorageInterface
         if ((bool)($data['pk'] ?? false)) {
             return 'primary';
         }
+        
+        $type = strtolower($type);
         
         if (str_contains($type, 'timestamp')) {
             return 'timestamp';

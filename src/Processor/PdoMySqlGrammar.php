@@ -607,8 +607,7 @@ class PdoMySqlGrammar implements GrammarInterface
         
         $statements = [];
         
-        foreach($chunks as $items)
-        {
+        foreach($chunks as $items) {
             $statements[] = $this->compileInsertStatement($table, $items);        
         }
 
@@ -628,6 +627,9 @@ class PdoMySqlGrammar implements GrammarInterface
         
         $columns = [];
         
+        /**
+         * @var array<string, mixed> $firstItem
+         */
         foreach(array_keys($firstItem) as $column) {
             $columns[] = $this->backtickValue($column);
         }
@@ -712,8 +714,8 @@ class PdoMySqlGrammar implements GrammarInterface
      * @param ColumnInterface $column
      * @param Table $table
      * @return string
-     *
      * @throws GrammarException
+     * @psalm-suppress PossiblyUnusedParam $table
      */    
     protected function compileColumn(ColumnInterface $column, Table $table): string
     {
@@ -798,9 +800,8 @@ class PdoMySqlGrammar implements GrammarInterface
     {
         $columns = array_values($table->getColumns());
         
-        foreach($columns as $index => $col)
-        {
-            if ($column->getName() === $col->getName()) {
+        foreach($columns as $index => $col) {
+            if ($column->getName() === $col->getName() && $index > 0) {
                 return $columns[$index-1] ?? null;
             }
         }
