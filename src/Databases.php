@@ -77,21 +77,19 @@ class Databases implements DatabasesInterface
      */    
     public function get(string $name): DatabaseInterface
     {
-        if (!$this->has($name))
-        {
+        if (!$this->has($name)) {
             throw new DatabaseException($name, 'Database ['.$name.'] not found!');
         }
         
-        if (! $this->databases[$name] instanceof DatabaseInterface)
-        {
-            try {
-                $this->databases[$name] = $this->createDatabase($name, $this->databases[$name]);
-            } catch(Throwable $e) {
-                throw new DatabaseException($name, $e->getMessage());
-            }
+        if ($this->databases[$name] instanceof DatabaseInterface) {
+            return $this->databases[$name];
         }
         
-        return $this->databases[$name];
+        try {
+            return $this->databases[$name] = $this->createDatabase($name, $this->databases[$name]);
+        } catch(Throwable $e) {
+            throw new DatabaseException($name, $e->getMessage());
+        }
     }
     
     /**
