@@ -332,11 +332,12 @@ class PdoSqliteProcessorTest extends TestCase
         $table = new Table(name: $tableName);
         $table->primary('id');
         $table->string('name');
+        $table->string('group'); // test for reserved keyword
         $table->bool('active');
         $table->index('index_name')->column('name');
         $table->items([
-            ['name' => 'foo', 'active' => true],
-            ['name' => 'bar', 'active' => true],
+            ['name' => 'foo', 'active' => true, 'group' => 'foo'],
+            ['name' => 'bar', 'active' => true, 'group' => 'bar'],
         ])->chunk(length: 100)->useTransaction(true)->forceInsert(false);        
         
         $processor = new PdoSqliteProcessor();
@@ -353,7 +354,7 @@ class PdoSqliteProcessorTest extends TestCase
         
         $savedTable = $storage->fetchTable($this->database, $tableName);
         
-        $this->assertSame(['id', 'active', 'new_name'], array_keys($savedTable->getColumns()));
+        $this->assertSame(['id', 'group', 'active', 'new_name'], array_keys($savedTable->getColumns()));
         $this->assertSame(1, count($savedTable->getIndexes()));
         $this->assertSame(['new_name'], $savedTable->getIndex('products_index_name')->getColumns());
         $this->assertSame(null, $savedTable->getItems());
