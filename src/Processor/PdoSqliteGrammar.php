@@ -347,8 +347,8 @@ class PdoSqliteGrammar implements GrammarInterface
         $statements[] = new Statement(
             statement: implode(' ', [
                 'INSERT INTO '.$this->backtickValue($tableTmp->getName()),
-                '('.implode(', ', array_keys($columnNames)).')',
-                'SELECT '.implode(', ', array_values($columnNames)),
+                '('.implode(', ', array_map([$this, 'backtickValue'], array_keys($columnNames))).')',
+                'SELECT '.implode(', ', array_map([$this, 'backtickValue'], array_values($columnNames))),
                 'FROM '.$this->backtickValue($table->getName()),
             ]),
             bindings: [],
