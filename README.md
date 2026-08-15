@@ -45,6 +45,10 @@ With the Database Service you can create and manage databases easily.
             - [Create Migration](#create-migration)
             - [Create Migration Seeder](#create-migration-seeder)
             - [Install And Uninstall Migration](#install-and-uninstall-migration)
+    - [Dumper](#dumper)
+        - [Available Dumpers](#available-dumpers)
+            - [MySql Database Dumper](#mysql-database-dumper)
+        - [Lazy Dumpers](#lazy-dumpers)
 - [Credits](#credits)
 ___
 
@@ -1363,6 +1367,149 @@ Check out the following migration service documentation to learn more about it.
 * [Create Migrator](https://github.com/tobento-ch/service-migration#create-migrator)
 * [Install Migration](https://github.com/tobento-ch/service-migration#install-migration)
 * [Uninstall Migration](https://github.com/tobento-ch/service-migration#uninstall-migration)
+
+## Dumper
+
+**The Dumper component provides a unified way to export and restore database contents.**  
+It supports MySQL (via native binaries) and can be extended with custom dumpers.  
+All dumpers work with **streams**, so even large dumps can be handled efficiently without loading them fully into memory.
+
+### Available Dumpers
+
+#### MySql Database Dumper
+
+Uses the `mysqldump` and `mysql` binaries to:
+- create SQL dump streams from selected tables  
+- restore databases from existing SQL dump streams  
+
+Suitable for environments where native MySQL tools are available on the system.
+
+**Requirements**
+
+The MySql Database Dumper requires the Symfony Process component to execute the `mysqldump` and `mysql` binaries.
+
+```
+composer require symfony/process
+```
+
+**Example**
+
+```php
+use Tobento\Service\Database\Dumper\MySqlDatabaseDumper;
+
+$dumper = new MySqlDatabaseDumper(
+    name: 'mysql',
+    database: 'app',
+    host: '127.0.0.1',
+    user: 'root',
+    password: 'secret',
+    socket: null,
+    port: 3306,
+    binary: null, // optional: override mysqldump/mysql binary
+);
+```
+
+**Dumping tables**
+
+```php
+$stream = fopen('backup.sql', 'w+');
+
+$dumper->dump(
+    tables: ['users', 'orders'],
+    destination: $stream,
+    timeoutSeconds: 30.0
+);
+```
+
+If you pass an empty table list, the dumper does not execute `mysqldump` and therefore produces no output.  
+This prevents accidental full‑database dumps and ensures that only explicitly selected tables are exported.
+
+**Restoring a dump**
+
+```php
+$stream = fopen('backup.sql', 'r');
+
+$dumper->restore(
+    source: $stream,
+    timeoutSeconds: 30.0
+);
+```
+
+### Lazy Dumpers
+
+`LazyDatabaseDumpers` is a registry that resolves dumpers by name only when they are needed.  
+Dumpers can be registered as:
+- instances  
+- factory objects  
+- class names (autowired via container)  
+- callable factories  
+
+```php
+use Tobento\Service\Database\Dumper\LazyDatabaseDumpers;
+use Tobento\Service\Database\Dumper\DatabaseDumperFactoryInterface;
+use Tobento\Service\Database\Dumper\DatabaseDumperInterface;
+use Tobento\Service\Database\Dumper\DatabaseDumperNotFoundException;
+use Tobento\Service\Database\Dumper\MySqlDatabaseDumper;
+
+$dumpers = new LazyDatabaseDumpers(
+    container: $container, // PSR-11 container
+    dumpers: [
+
+        // instance
+        'mysql-instance' => new MySqlDatabaseDumper(
+            name: 'mysql-instance',
+            database: 'app',
+            host: '127.0.0.1',
+            user: 'root',
+            password: 'secret',
+        ),
+
+        // class name (autowired)
+        'mysql' => MySqlDatabaseDumper::class,
+
+        // callable factory
+        'mysql-callable' => fn(string $name) => new MySqlDatabaseDumper(
+            name: $name,
+            database: 'app',
+            host: '127.0.0.1',
+            user: 'root',
+            password: 'secret',
+        ),
+
+        // factory object
+        'mysql-factory' => new class implements DatabaseDumperFactoryInterface {
+            public function createDumper(string $name, array $config = []): DatabaseDumperInterface
+            {
+                return new MySqlDatabaseDumper(
+                    name: $name,
+                    database: $config['database'] ?? 'app',
+                    host: $config['host'] ?? '127.0.0.1',
+                    user: $config['user'] ?? 'root',
+                    password: $config['password'] ?? 'secret',
+                );
+            }
+        },
+    ]
+);
+
+// resolved lazily
+$dumper = $dumpers->get('mysql');
+
+// check if a dumper exists
+if ($dumpers->has('mysql-callable')) {
+    // ...
+}
+
+// available names
+$names = $dumpers->names(); // ['mysql-instance', 'mysql', 'mysql-callable', 'mysql-factory']
+
+// throws DatabaseDumperNotFoundException
+try {
+    $dumpers->get('unknown');
+} catch (DatabaseDumperNotFoundException $e) {
+    // handle missing dumper
+}
+```
 
 # Credits
 
